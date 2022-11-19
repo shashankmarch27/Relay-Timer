@@ -10,6 +10,7 @@ RTC_DS3231 rtc;
 
 int menu = 0;
 int option = 0;
+
 int hr;
 int hour;
 int minute;
@@ -17,18 +18,20 @@ int second;
 int day;
 int month;
 int year;
+int week;
+
 int hour_al1 = 6;
 int minute_al1 = 30;
 int hr_al1 = 1;
-int hour_al2 = 11;
+int hour_al2 = 12;
 int minute_al2 =0;
-int hr_al2 = 1;
+int hr_al2 = 0;
 int on_time;
 int off_time;
 int now_time;
-int week;
+
 int *ptr = NULL;
-bool state = 1;
+
 bool enter = 0;
 bool editing = 0;
 
@@ -93,8 +96,6 @@ void loop(){
     rp2040.fifo.push(menu);
     rp2040.fifo.push(option);
   }
-
-  
   else if (menu == 2){
     if(hr < 0){
       hr = 1;
@@ -255,7 +256,17 @@ void loop(){
         enter = 0;
         option = 0;
         menu = 1;
-        rtc.adjust(DateTime(year, month, day, (hr == 1) ? (hour + 12) : 12, minute, 0));
+        if(hr){
+          if(hour != 12){
+            hour = hour + 12;
+          }
+        }
+        else{
+          if(hour == 12){
+            hour = 0;
+          }
+        }
+        rtc.adjust(DateTime(year, month, day, hour, minute, 0));
       }
     }
     else if(option < 0){
@@ -357,8 +368,15 @@ void loop(){
         enter = 0;
         option = 0;
         menu = 1;
-        if(hr_al1 == 1){
-          hour_al1 = hour_al1 + 12;
+        if(hr_al1){
+          if(hour_al1 != 12){
+            hour_al1 = hour_al1 + 1; 
+          }
+        }
+        else{
+          if(hour_al1 == 12){
+            hour_al1 = 0;
+          }
         }
       }
     }
@@ -455,8 +473,15 @@ void loop(){
         enter = 0;
         option = 0;
         menu = 1;
-        if(hr_al2 == 1){
-          hour_al2 = hour_al2 + 12;
+        if(hr_al2){
+          if(hour_al2 != 12){
+            hour_al2 = hour_al2 + 12; 
+          }
+        }
+        else{
+          if(hour_al2 == 12){
+            hour_al2 = 0;
+          }
         }
       }
     }
@@ -488,6 +513,13 @@ void loop(){
     if(hour > 12){
       hour = hour - 12;
       hr = 1;
+    }
+    else if(hour == 12){
+      hr = 1;
+    }
+    else if(hour == 0){
+      hour = 12;
+      hr = 0;
     }
     else{
       hr = 0;
@@ -544,8 +576,6 @@ void loop(){
       digitalWrite(RELAY,HIGH);
     }
   }
-  Serial.println(on_time);
-  Serial.println(off_time);
 }
 
 void btn(){
