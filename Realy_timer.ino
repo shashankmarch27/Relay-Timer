@@ -34,6 +34,8 @@ int *ptr = NULL;
 
 bool enter = 0;
 bool editing = 0;
+bool first = 0;
+
 
 void setup(){
   pinMode(RELAY,OUTPUT);
@@ -49,10 +51,24 @@ void setup(){
   rtc.begin();
   rp2040.fifo.push(rtc.lostPower());
   if(hr_al1){
-    hour_al1 = hour_al1 + 12;
+    if(hour_al1 != 12){
+      hour_al1 = hour_al1 + 12;
+    }
+  }
+  else{
+    if(hour_al1 == 12){
+      hour_al1 = 0;
+    }
   }
   if(hr_al2){
-    hour_al2 = hour_al2 + 12;
+    if(hour_al2 != 12){
+      hour_al2 = hour_al2 + 12;
+    }
+  }
+  else{
+    if(hour_al2 == 12){
+      hour_al2 = 0;
+    }
   }
 }
 
@@ -71,6 +87,7 @@ void loop(){
         menu = 3;
         enter = 0;
         option = 0;
+        first = 1;
       }
     }
     else if(option == 2){
@@ -78,6 +95,7 @@ void loop(){
         menu = 4;
         enter = 0;
         option = 0;
+        first = 1;
       }
     }
     else if(option == 3){
@@ -288,6 +306,20 @@ void loop(){
 
 
   else if (menu == 3){
+    if(first){
+      first = 0;
+      if(hr_al1){
+        if (hour_al1 != 12){
+          hour_al1 = hour_al1 - 12;
+        }
+      }
+      else{
+        if(hour_al1 == 0){
+          hour_al1 = 12;
+        }
+      }
+    }
+    
     if(hr_al1 < 0){
       hr_al1 = 1;
     }
@@ -370,7 +402,7 @@ void loop(){
         menu = 1;
         if(hr_al1){
           if(hour_al1 != 12){
-            hour_al1 = hour_al1 + 1; 
+            hour_al1 = hour_al1 + 12; 
           }
         }
         else{
@@ -393,6 +425,20 @@ void loop(){
     rp2040.fifo.push(option);
   }
   else if (menu == 4){
+    if(first){
+      first = 0;
+      if(hr_al2){
+        if (hour_al2 != 12){
+          hour_al2 = hour_al2 - 12;
+        }
+      }
+      else{
+        if(hour_al2 == 0){
+          hour_al2 = 12;
+        }
+      }
+    }
+    
     if(hr_al2 < 0){
       hr_al2 = 1;
     }
